@@ -1,0 +1,64 @@
+
+Select * From [dbo].[pizza_sales]
+
+-- Calculating the Total Revnue of pizza sales:  -- 
+
+SELECT SUM(total_price) AS Total_Revenue FROM [dbo].[pizza_sales]
+
+-- Calculating Average Order Value: --
+SELECT SUM(total_price) / Count(DISTINCT order_id)   AS Average_Order_Value FROM [dbo].[pizza_sales]
+
+-- Calculating Total Pizzas Sols: --
+
+Select SUM(quantity)  AS Tota_pizza_sold FROM [dbo].[pizza_sales] 
+
+-- Calculating Total Number of Orders --
+SELECT COUNT(DISTINCT order_id) AS Tota_number_of_orderes FROM [dbo].[pizza_sales]
+
+-- Calculating Average Pizza Per Order
+SELECT CAST(CAST(SUM(quantity) AS DECIMAL(10,2))/ 
+CAST(COUNT(DISTINCT order_id) AS DECIMAL(10,2)) AS DECIMAL (10,2)) AS Average_Pizza_Per_Order  FROM [dbo].[pizza_sales]
+
+-- CHARTS DATA VALUES --
+--DAILY TREND FOR ORDERS: TOTAL ORDERS VS SPEICIFC TIME PERIODS  --
+
+SELECT DATENAME(DW, order_date) as order_day,
+COUNT(DISTINCT order_id) AS Total_orders
+FROM[dbo].[pizza_sales]
+GROUP BY DATENAME(DW, order_date)
+
+-- HOURLY TREND : DAILY WHICH HOUR IS PEAK HOUR --
+SELECT DATEPART(HOUR, order_time) AS order_hours, COUNT(DISTINCT order_id)
+FROM [dbo].[pizza_sales]
+GROUP BY DATEPART(HOUR, order_time)
+ORDER BY DATEPART(HOUR, order_time)
+
+--% OF SALES BY PIZZA CATEGORY --
+SELECT pizza_category,SUM(total_price) as total_sales, SUM(total_price) * 100 / (SELECT SUM(total_price) FROM [dbo].[pizza_sales]) AS PC_Total_sales
+FROM [dbo].[pizza_sales] 
+-- WHERE MONTH(order_date) = 1 -- 
+GROUP BY pizza_category 
+
+-- % sales by pizza size --
+SELECT pizza_size,SUM(total_price) as total_sales, SUM(total_price) * 100 / (SELECT SUM(total_price) FROM [dbo].[pizza_sales]) AS PC_Total_sales
+FROM [dbo].[pizza_sales] 
+-- WHERE DATEPART(quarter, order_date) = 1 -- 
+GROUP BY pizza_size 
+
+-- Total pizza soled by pizza category --
+SELECT pizza_category, sum(quantity) as total_pizzas_sold 
+FROM [dbo].[pizza_sales]
+GROUP BY pizza_category 
+
+--TOP 5 BEST SELLERS SOLD --
+
+SELECT TOP 5 pizza_name, sum(quantity) as total_pizza_sold
+from [dbo].[pizza_sales]
+GROUP BY pizza_name
+ORDER BY sum(quantity) DESC
+
+--- bottom 5 pizzas sold -- 
+SELECT TOP 5 pizza_name, sum(quantity) as total_pizza_sold
+from [dbo].[pizza_sales]
+GROUP BY pizza_name
+ORDER BY sum(quantity) ASC
